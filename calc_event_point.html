@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="author" content="みのこ">
+  <title>ガルパ 着地ポイント計算[ベータ版]</title>
+</head>
+<body>
+  <h1>ガルパ 着地ポイント計算[ベータ版]</h1>
+  <p>チャレンジライブイベントのみ対応.<br>基本情報入力後、計算ボタンを押下してください.</p>
+  <h2>基本情報入力</h2>
+  <h3>周回時データ</h3>
+  <label for="multiLiveEventPointByHour">1時間あたりのイベントP:</label>
+  <input type="number" id="multiLiveEventPointByHour" min="0" step="1"><br>
+
+  <label for="multiLiveCPByHour">1時間あたりのCP:</label>
+  <input type="number" id="multiLiveCPByHour" min="0" step="1"><br>
+
+  <h3>CP消化時データ</h3>
+  <label for="CPEventPointBySong">1曲(1600消費)あたりのイベントP:</label>
+  <input type="number" id="CPEventPointBySong" min="0" step="1"><br>
+
+  <h3>現時点のデータ</h3>
+  <label for="currentEventPoint">現時点のイベP:</label>
+  <input type="number" id="currentEventPoint" min="0" step="1"><br>
+
+  <label for="currentCP">現時点のCP:</label>
+  <input type="number" id="currentCP" min="0" step="1"><br>
+
+  <h3>基本情報入力4: タスク状況</h3>
+  <label for="playHour">稼働可能時間(h):</label>
+  <input type="number" id="playHour" min="0" step="1"><br>
+
+  <button onclick="calculateFinalEventPoint()">計算</button>
+
+  <h2>計算結果</h2>
+  <h3>最終着地ポイント：</h3>
+  <div id="result">最終着地ポイント：-- P</div>
+  <h3>稼働時間配分</h3>
+  <div id="multiLiveHour">周回時間：-- 時間</div>
+  <div id="CPHour">CP消化時間：-- 時間</div>
+
+  <script>
+    function calculateFinalEventPoint() {
+      const multiLiveEventPointByHour = parseFloat(document.getElementById('multiLiveEventPointByHour').value);
+      const multiLiveCPByHour = parseInt(document.getElementById('multiLiveCPByHour').value);
+      const CPEventPointBySong = parseFloat(document.getElementById('CPEventPointBySong').value);
+      const currentCP = parseFloat(document.getElementById('currentCP').value);
+      const playHour = parseInt(document.getElementById('playHour').value);
+
+      // TODO: 値チェック
+
+      // 準備：総稼働時間のうち、周回時間とCP消化時間を算出
+      // 以下の連立方程式をとく。
+      // A) 周回時間 + CP消化時間 = 総稼働時間
+      // B) CP消化時間 = (現時点のCP + 周回で獲得できるCP) / (1600 * 29) 
+      // ※CP消化は1600消費かつ、1時間あたり29回演奏とする.
+      // TODO: 1時間あたりの曲数をユーザが調節できるようにする.
+      const det = 1600 * 29 + multiLiveCPByHour
+      const multiLiveHour = (playHour * (1600 * 29) - currentCP) / det
+      const CPHour = (currentCP + multiLiveCPByHour * playHour) / det
+
+      // 1. 現在のイベントP
+      const currentEventPoint = parseInt(document.getElementById('currentEventPoint').value);
+
+      // 2. 周回でもらえるイベントP
+      const multiLiveEventPoint = multiLiveEventPointByHour * multiLiveHour
+
+      // 3. CP消化でもらえるイベントP
+      const CPEventPoint = ( multiLiveCPByHour * multiLiveHour + currentCP) * CPEventPointBySong / 1600
+
+      // 最終着地ポイント
+      const finalEventPoint = currentEventPoint + multiLiveEventPoint + CPEventPoint
+
+      document.getElementById('result').textContent = `最終着地ポイント：${finalEventPoint.toLocaleString()} P`;
+      document.getElementById('multiLiveHour').textContent = `周回時間：${multiLiveHour.toLocaleString()} 時間`;
+      document.getElementById('CPHour').textContent = `CP消化時間：${CPHour.toLocaleString()} 時間`;
+    }
+  </script>
+</body>
+</html>
