@@ -8,7 +8,7 @@
 </head>
 <body>
   <h1>ガルパ 着地ポイント計算[ベータ版]</h1>
-  <p>2025/11/6現在, チャレンジライブイベントのみ対応.<br>基本情報入力後, 計算ボタンを押下してください.</p>
+  <p>2025/11/6現在, チャレンジライブイベントのみ対応.<br>基本情報を入力または変更後, 計算ボタンを押下してください.</p>
   <h2>基本情報入力</h2>
   <h3>周回時データ</h3>
   <label for="multiLiveEventPointByHour">1曲(ブースト3消費)あたりのイベントP:</label>
@@ -24,6 +24,9 @@
   <label for="CPEventPointBySong">1曲(1600消費)あたりのイベントP:</label>
   <input type="number" id="CPEventPointBySong" min="0" step="1"><br>
 
+  <label for="numCPLiveByHour">1時間あたりのCP消化数:</label>
+  <input type="number" id="numCPLiveByHour" min="0" step="1" value="29"><br>
+
   <h3>現時点のデータ</h3>
   <label for="currentEventPoint">現時点のイベP:</label>
   <input type="number" id="currentEventPoint" min="0" step="1"><br>
@@ -32,7 +35,7 @@
   <input type="number" id="currentCP" min="0" step="1"><br>
 
   <h3>タスク状況</h3>
-  <label for="playHour">稼働可能時間(h):</label>
+  <label for="playHour">現時点～イベ終了までの稼働可能時間(h):</label>
   <input type="number" id="playHour" min="0" step="1"><br>
 
   <button onclick="calculateFinalEventPoint()">計算</button>
@@ -50,11 +53,12 @@
       const multiLiveEventPointBySong = parseInt(document.getElementById('multiLiveEventPointBySong').value);
       const multiLiveCPBySong = parseInt(document.getElementById('multiLiveCPBySong').value);
       const numMultiLiveByHour = parseInt(document.getElementById('numMultiLiveByHour').value);
-
       const multiLiveEventPointByHour = multiLiveEventPointBySong * numMultiLiveByHour
       const multiLiveCPByHour = multiLiveCPBySong * numMultiLiveByHour
 
       const CPEventPointBySong = parseInt(document.getElementById('CPEventPointBySong').value);
+      const numCPLiveByHour = parseInt(document.getElementById('numCPLiveByHour').value);
+
       const currentCP = parseInt(document.getElementById('currentCP').value);
       const playHour = parseInt(document.getElementById('playHour').value);
 
@@ -66,8 +70,8 @@
       // B) CP消化時間 = (現時点のCP + 周回で獲得できるCP) / (1600 * 29) 
       // ※CP消化は1600消費かつ、1時間あたり29回演奏とする.
       // TODO: 1時間あたりの曲数をユーザが調節できるようにする.
-      const det = 1600 * 29 + multiLiveCPByHour
-      const multiLiveHour = (playHour * (1600 * 29) - currentCP) / det
+      const det = 1600 * numCPLiveByHour + multiLiveCPByHour
+      const multiLiveHour = (playHour * (1600 * numCPLiveByHour) - currentCP) / det
       const CPHour = (currentCP + multiLiveCPByHour * playHour) / det
 
       // 1. 現在のイベントP
