@@ -4,17 +4,21 @@
   <meta charset="UTF-8">
   <meta name="author" content="みのこ">
   <title>ガルパ 着地ポイント計算[ベータ版]</title>
+  <link rel="stylesheet" href="styles.css"></link>
 </head>
 <body>
   <h1>ガルパ 着地ポイント計算[ベータ版]</h1>
-  <p>チャレンジライブイベントのみ対応.<br>基本情報入力後、計算ボタンを押下してください.</p>
+  <p>2025/11/6現在, チャレンジライブイベントのみ対応.<br>基本情報入力後, 計算ボタンを押下してください.</p>
   <h2>基本情報入力</h2>
   <h3>周回時データ</h3>
-  <label for="multiLiveEventPointByHour">1時間あたりのイベントP:</label>
-  <input type="number" id="multiLiveEventPointByHour" min="0" step="1"><br>
+  <label for="multiLiveEventPointByHour">1曲(ブースト3消費)あたりのイベントP:</label>
+  <input type="number" id="multiLiveEventPointBySong" min="0" step="1"><br>
 
-  <label for="multiLiveCPByHour">1時間あたりのCP:</label>
-  <input type="number" id="multiLiveCPByHour" min="0" step="1"><br>
+  <label for="multiLiveCPByHour">1曲(ブースト3消費)あたりのCP:</label>
+  <input type="number" id="multiLiveCPBySong" min="0" step="1"><br>
+
+  <label for="multiLiveCPByHour">1時間あたりの周回数:</label>
+  <input type="number" id="numMultiLiveByHour" min="0" step="1" value="26"><br>
 
   <h3>CP消化時データ</h3>
   <label for="CPEventPointBySong">1曲(1600消費)あたりのイベントP:</label>
@@ -27,7 +31,7 @@
   <label for="currentCP">現時点のCP:</label>
   <input type="number" id="currentCP" min="0" step="1"><br>
 
-  <h3>基本情報入力4: タスク状況</h3>
+  <h3>タスク状況</h3>
   <label for="playHour">稼働可能時間(h):</label>
   <input type="number" id="playHour" min="0" step="1"><br>
 
@@ -42,10 +46,16 @@
 
   <script>
     function calculateFinalEventPoint() {
-      const multiLiveEventPointByHour = parseFloat(document.getElementById('multiLiveEventPointByHour').value);
-      const multiLiveCPByHour = parseInt(document.getElementById('multiLiveCPByHour').value);
-      const CPEventPointBySong = parseFloat(document.getElementById('CPEventPointBySong').value);
-      const currentCP = parseFloat(document.getElementById('currentCP').value);
+
+      const multiLiveEventPointBySong = parseInt(document.getElementById('multiLiveEventPointBySong').value);
+      const multiLiveCPBySong = parseInt(document.getElementById('multiLiveCPBySong').value);
+      const numMultiLiveByHour = parseInt(document.getElementById('numMultiLiveByHour').value);
+
+      const multiLiveEventPointByHour = multiLiveEventPointBySong * numMultiLiveByHour
+      const multiLiveCPByHour = multiLiveCPBySong * numMultiLiveByHour
+
+      const CPEventPointBySong = parseInt(document.getElementById('CPEventPointBySong').value);
+      const currentCP = parseInt(document.getElementById('currentCP').value);
       const playHour = parseInt(document.getElementById('playHour').value);
 
       // TODO: 値チェック
@@ -70,7 +80,7 @@
       const CPEventPoint = ( multiLiveCPByHour * multiLiveHour + currentCP) * CPEventPointBySong / 1600
 
       // 最終着地ポイント
-      const finalEventPoint = currentEventPoint + multiLiveEventPoint + CPEventPoint
+      const finalEventPoint = parseInt(currentEventPoint + multiLiveEventPoint + CPEventPoint)
 
       document.getElementById('result').textContent = `最終着地ポイント：${finalEventPoint.toLocaleString()} P`;
       document.getElementById('multiLiveHour').textContent = `周回時間：${multiLiveHour.toLocaleString()} 時間`;
